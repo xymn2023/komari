@@ -1,0 +1,17 @@
+version: '3.8'
+services:
+  komari:
+    image: smhw3565/komari:latest
+    container_name: komari
+    ports:
+      - "25774:25774"
+    volumes:
+      - ./data:/app/data
+    environment:
+      - GIN_MODE=release
+      - KOMARI_DB_TYPE=sqlite
+      - KOMARI_DB_FILE=/app/data/komari.db
+      # 可选：自定义初始管理员账号密码
+      - ADMIN_USERNAME=admin
+      - ADMIN_PASSWORD=yourpassword
+    restart: unless-stopped 
