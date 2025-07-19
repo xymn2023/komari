@@ -19,7 +19,7 @@ Komari 是一款轻量级的自托管服务器监控工具，旨在提供简单�
 
 ### 依赖
 - Docker（快速部署）
-- 或者 Go 1.18+ 和 Node.js 20+（手工构建）
+
 
 ### Docker 部署
 1. 创建`docker-compose.yml`：
