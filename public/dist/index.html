@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="shortcut icon" href="favicon.ico" type="image/x-icon" />
+    <meta name="description" content="A simple server monitor tool." />
+    <meta
+      name="keywords"
+      content="server monitor, Komari Monitor, server uptime monitoring, real-time server status, server performance dashboard, monitoring tool"
+    />
+    <meta name="author" content="Akizon77" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta property="og:title" content="Komari Monitor" />
+    <meta property="og:description" content="A simple server monitor tool." />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="Komari Monitor" />
+    <meta name="twitter:description" content="A simple server monitor tool." />
+    <title>Komari Monitor</title>
+
+    <script type="module" crossorigin src="/assets/entry-index-Cq13IMyc.js"></script>
+    <link rel="modulepreload" crossorigin href="/assets/chunk-react-vendor-Csw2ODfV.js">
+    <link rel="stylesheet" crossorigin href="/assets/index-CGLP6J2l.css">
+
+    <style>
+      /* 基础浮动面板样式（展开态） */
+      #ip-query-widget {
+        position: fixed;
+        bottom: 60px; /* 根据您实际页脚的高度，可能需要调整此值以避免重叠 */
+        left: 50%;
+        transform: translateX(-50%);
+        background-color: rgba(255, 255, 255, 0.95);
+        border: 1px solid #e0e6ed;
+        border-radius: 12px;
+        box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+        padding: 15px 25px;
+        box-sizing: border-box;
+        z-index: 1000;
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        color: #333;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        transition: 
+          bottom 0.3s ease,
+          left 0.3s ease,
+          right 0.3s ease,
+          width 0.3s ease,
+          height 0.3s ease,
+          padding 0.3s ease,
+          transform 0.3s ease;
+      }
+
+      /* 文本容器，展开态下留出箭头空间 */
+      #result-container {
+        padding-right: 40px;
+        font-size: 18px;
+        line-height: 1.8;
+        display: inline-block;
+      }
+
+      /* 渐变文字 */
+      #result {
+        white-space: nowrap;
+        font-weight: 600;
+        background: linear-gradient(90deg, #6a82fb, #fc5c7d);
+        -webkit-background-clip: text;
+        background-clip: text;
+        -webkit-text-fill-color: transparent;
+        color: transparent;
+        animation: textGradientShift 4s ease-in-out infinite alternate;
+        background-size: 200% auto;
+      }
+      @keyframes textGradientShift {
+        0% { background-position: 0% 50%; }
+        100% { background-position: 100% 50%; }
+      }
+
+      /* 箭头，同文字渐变色 */
+      #toggle-icon {
+        position: absolute;
+        right: 12px;
+        top: 50%;
+        transform: translateY(-50%);
+        font-size: 16px;
+        font-weight: bold;
+        background: linear-gradient(90deg, #6a82fb, #fc5c7d);
+        -webkit-background-clip: text;
+        background-clip: text;
+        color: transparent;
+        pointer-events: none;
+        user-select: none;
+        background-size: 200% auto;
+        animation: textGradientShift 4s ease-in-out infinite alternate;
+      }
+
+      /* 折叠态：圆形白底，和放大镜水平对齐 */
+      #ip-query-widget.collapsed {
+        width: 30px;            /* 与放大镜背景直径一致 */
+        height: 30px;
+        padding: 0;
+        border-radius: 50%;
+        background-color: #fff;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+        left: auto;
+        right: 32px;            /* 根据放大镜位置微调 */
+        bottom: 80px;            /* 上移避开底部按钮 */
+        transform: none;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+
+      /* 折叠时隐藏文字 */
+      #ip-query-widget.collapsed #result-container {
+        display: none;
+      }
+      /* 折叠态箭头：居中显示 */
+      #ip-query-widget.collapsed #toggle-icon {
+        position: static;
+        transform: none;
+        font-size: 14px;
+      }
+
+      /* 隐藏页眉／页脚（如有） */
+      .header-branding, .footer-info {
+        display: none;
+      }
+
+      /* 小屏响应 */
+      @media (max-width: 768px) {
+        #ip-query-widget {
+          bottom: 40px;
+          padding: 10px 15px;
+        }
+        #ip-query-widget.collapsed {
+          bottom: 60px;
+          right: 40px;
+        }
+        #result-container {
+          font-size: 15px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div id="root"></div>
+
+    <div id="ip-query-widget">
+      <div id="result-container">
+        <div id="result">正在查询您的IP信息...</div>
+      </div>
+      <span id="toggle-icon">»»</span>
+
+      <script>
+        // ping0.cc 的回调函数，需要保持全局可访问性
+        function callback(ip, location, asn, org) {
+          const loc = location || '未知地区';
+          const au = asn || '未知ASN';
+          document.getElementById('result').textContent = `访问IP: ${ip} | ${loc} | ${au}`;
+        }
+
+        // 在 DOM 完全加载就绪后，动态加载 IP 查询脚本
+        // 这确保 Komari Monitor 主应用能够优先加载和渲染
+        document.addEventListener('DOMContentLoaded', function() {
+          const script = document.createElement('script');
+          script.src = "https://ping0.cc/geo/jsonp/callback";
+          document.body.appendChild(script); // 将脚本添加到 body 底部
+        });
+      </script>
+    </div>
+
+    <script>
+      (function(){
+        const widget = document.getElementById('ip-query-widget');
+        const icon = document.getElementById('toggle-icon');
+        widget.addEventListener('click', function(e){
+          e.stopPropagation(); // 阻止点击事件向上层元素传播
+          this.classList.toggle('collapsed');
+          icon.textContent = this.classList.contains('collapsed') ? '««' : '»»';
+        });
+      })();
+    </script>
+  </body>
+</html>
