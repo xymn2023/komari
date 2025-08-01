@@ -59,6 +59,211 @@ Komari 是一款轻量级的自托管服务器监控工具，旨在提供简单�
 
 你需要切换到 debian 或 ubuntu 这类有完整 libc 和 sqlite3 动态库的镜像，并且在 Linux 下用 CGO_ENABLED=1 编译。所以打包了最为全面完整的底层环境进行打包。
 
+## 显示访问者IP小工具
+食用方法：登入后台--设置--站点--自定义 Body--在页面底部添加自定义内容--粘贴即可
+主页刷新显示效果
+
+
+```
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>IP 地址查询</title>
+  <style>
+    /* 基础浮动面板样式（展开态） */
+    #ip-query-widget {
+      position: fixed;
+      bottom: 60px;
+      left: 50%;
+      transform: translateX(-50%);
+      background-color: rgba(255, 255, 255, 0.95);
+      border: 1px solid #e0e6ed;
+      border-radius: 12px;
+      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+      padding: 15px 25px;
+      box-sizing: border-box;
+      z-index: 1000;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      color: #333;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: 
+        bottom 0.3s ease,
+        left 0.3s ease,
+        right 0.3s ease,
+        width 0.3s ease,
+        height 0.3s ease,
+        padding 0.3s ease,
+        transform 0.3s ease;
+    }
+
+    /* 文本容器，展开态下留出箭头空间 */
+    #result-container {
+      padding-right: 40px;
+      font-size: 18px;
+      line-height: 1.8;
+      display: inline-block;
+    }
+
+    /* 渐变文字 */
+    #result {
+      white-space: nowrap;
+      font-weight: 600;
+      background: linear-gradient(90deg, #6a82fb, #fc5c7d);
+      -webkit-background-clip: text;
+      background-clip: text;
+      -webkit-text-fill-color: transparent;
+      color: transparent;
+      animation: textGradientShift 4s ease-in-out infinite alternate;
+      background-size: 200% auto;
+    }
+    @keyframes textGradientShift {
+      0% { background-position: 0% 50%; }
+      100% { background-position: 100% 50%; }
+    }
+
+    /* 箭头，同文字渐变色 */
+    #toggle-icon {
+      position: absolute;
+      right: 12px;
+      top: 50%;
+      transform: translateY(-50%);
+      font-size: 16px;
+      font-weight: bold;
+      background: linear-gradient(90deg, #6a82fb, #fc5c7d);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+      pointer-events: none;
+      user-select: none;
+      background-size: 200% auto;
+      animation: textGradientShift 4s ease-in-out infinite alternate;
+    }
+
+    /* 折叠态：圆形白底，和放大镜水平对齐 */
+    #ip-query-widget.collapsed {
+      width: 30px;            /* 与放大镜背景直径一致 */
+      height: 30px;
+      padding: 0;
+      border-radius: 50%;
+      background-color: #fff;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+      left: auto;
+      right: 32px;            /* 根据放大镜位置微调 */
+      bottom: 80px;           /* 上移避开底部按钮 */
+      transform: none;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    /* 折叠时隐藏文字 */
+    #ip-query-widget.collapsed #result-container {
+      display: none;
+    }
+    /* 折叠态箭头：居中显示 */
+    #ip-query-widget.collapsed #toggle-icon {
+      position: static;
+      transform: none;
+      font-size: 14px;
+    }
+
+    /* 隐藏页眉／页脚（如有） */
+    .header-branding, .footer-info {
+      display: none;
+    }
+
+    /* 小屏响应 */
+    @media (max-width: 768px) {
+      #ip-query-widget {
+        bottom: 40px;
+        padding: 10px 15px;
+      }
+      #ip-query-widget.collapsed {
+        bottom: 60px;
+        right: 40px;
+      }
+      #result-container {
+        font-size: 15px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <div id="ip-query-widget">
+    <div id="result-container">
+      <div id="result">正在查询您的IP信息...</div>
+    </div>
+    <span id="toggle-icon">»»</span>
+
+    <script>
+      function callback(ip, location, asn, org) {
+        const loc = location || '未知地区';
+        const au  = asn      || '未知ASN';
+        document.getElementById('result')
+                .textContent = `访问IP: ${ip} | ${loc} | ${au}`;
+      }
+    </script>
+    <script src="https://ping0.cc/geo/jsonp/callback"></script>
+  </div>
+
+  <script>
+    (function(){
+      const widget = document.getElementById('ip-query-widget');
+      const icon   = document.getElementById('toggle-icon');
+      widget.addEventListener('click', function(e){
+        e.stopPropagation();
+        this.classList.toggle('collapsed');
+        icon.textContent = this.classList.contains('collapsed') ? '««' : '»»';
+      });
+    })();
+  </script>
+
+</body>
+</html>
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 ## 前端开发指南
 [Komari 主题开发指南 | Komari](https://komari-monitor.github.io/komari-document/dev/theme.html)
 
