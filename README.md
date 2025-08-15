@@ -17,6 +17,14 @@ Komari 是一款轻量级的自托管服务器监控工具，旨在提供简单�
 
 ## 快速开始
 
+
+一键命令
+
+```
+wget https://raw.githubusercontent.com/xymn2023/komari/main/install.sh && chmod +x install.sh && sudo ./install.sh
+```
+
+
 ### 依赖
 - Docker（快速部署）
 
